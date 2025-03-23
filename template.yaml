@@ -19,3 +19,5 @@ Resources:
           # reference parameters stored in AWS Systems Manager
           SITES_TO_MONITOR: "{{resolve:ssm:/backend/lambda/sites-to-monitor}}"
           SERVERS_TO_MONITOR: "{{resolve:ssm:/backend/lambda/servers-to-monitor}}"
+          NOTIFICATION_SERVER_ENDPOINT: "{{resolve:ssm:/backend/lambda/notification-server-endpoint}}"
+          EMAIL_NOTIFICATION_RECIPIENTS: "{{resolve:ssm:/backend/internal/alert-emails}}"
