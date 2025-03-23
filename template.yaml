@@ -1,14 +1,17 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Resources:
-  SiteMonitorFunction:
+  HealthMonitorFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./cmd/health-monitor/
+      CodeUri: ./cmd/
       Handler: health-monitor
-      Runtime: go1.x
+      Runtime: provided.al2
       Architectures:
         - x86_64
+      Timeout: 20 # maximum function execution time (seconds) - AWS default is 3 seconds
+      MemorySize: 128 # more memory = higher cost, better performance - AWS minimum memory allocation is 128MB
+      ReservedConcurrentExecutions: 1 # how many instances of the Lambda that can run at once
       Events:
         ScheduledCheck:
           Type: Schedule
@@ -21,3 +24,4 @@ Resources:
           SERVERS_TO_MONITOR: "{{resolve:ssm:/backend/lambda/servers-to-monitor}}"
           NOTIFICATION_SERVER_ENDPOINT: "{{resolve:ssm:/backend/lambda/notification-server-endpoint}}"
           EMAIL_NOTIFICATION_RECIPIENTS: "{{resolve:ssm:/backend/internal/alert-emails}}"
+          NOTIFICATION_SERVER_API_KEY: "{{resolve:ssm:/backend/internal/notification-server-api-key}}"

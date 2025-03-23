@@ -19,24 +19,24 @@ func handler(ctx context.Context) (string, error) {
 
 	sitesList := strings.Split(sites, ",")
 	serversList := strings.Split(servers, ",")
-    unhealthyEndpoints := []string{}
+	unhealthyEndpoints := []string{}
 
 	for _, site := range sitesList {
-        internal.CheckEndpointHealth(&unhealthyEndpoints, site)
+		internal.CheckEndpointHealth(&unhealthyEndpoints, site)
 	}
 
 	for _, server := range serversList {
 		internal.CheckEndpointHealth(&unhealthyEndpoints, server)
 	}
 
-    allSuccessful := len(unhealthyEndpoints) == 0
-    err := internal.SendNotification(allSuccessful, unhealthyEndpoints)
-    if err != nil {
-        fmt.Println("Error sending notification:", err)
-        return "", err // this allows AWS to recognize the Lambda invocation as a failure
-    }
+	allSuccessful := len(unhealthyEndpoints) == 0
+	err := internal.SendNotification(allSuccessful, unhealthyEndpoints)
+	if err != nil {
+		fmt.Println("Error sending notification:", err)
+		return "", err // this allows AWS to recognize the Lambda invocation as a failure
+	}
 
-    return "Health check completed", nil
+	return "Health check completed", nil
 }
 
 func main() {

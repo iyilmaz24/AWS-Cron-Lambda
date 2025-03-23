@@ -44,6 +44,7 @@ func SendNotification(allSuccessful bool, unhealthyEndpoints []string) error {
 	notificationTimezone := now.Format("MST")
 
 	notificationRecipients := strings.Split(os.Getenv("EMAIL_NOTIFICATION_RECIPIENTS"), ",")
+	notificationId := fmt.Sprintf("health-%d", time.Now().Unix()) // health-1711147283
 
 	urgency := "high"
 	if allSuccessful {
@@ -52,10 +53,12 @@ func SendNotification(allSuccessful bool, unhealthyEndpoints []string) error {
 
 	messageLines := []string{}
 	if !allSuccessful {
-		messageLines = append(messageLines, "Unhealthy Endpoints:")
-		messageLines = append(messageLines, unhealthyEndpoints...)
+		messageLines = append(messageLines, "<strong>Unhealthy Endpoints:</strong><br/>")
+		for _, endpoint := range unhealthyEndpoints {
+			messageLines = append(messageLines, "• "+endpoint+"<br/>")
+		}
 	} else {
-		messageLines = append(messageLines, "All Endpoints Healthy.")
+		messageLines = append(messageLines, "<strong>All Endpoints Healthy.</strong><br/>")
 	}
 
 	notification := Notification{
@@ -64,14 +67,14 @@ func SendNotification(allSuccessful bool, unhealthyEndpoints []string) error {
 		NotificationUrgency:    urgency,
 		NotificationRecipients: notificationRecipients,
 		NotificationStatus:     "Pending",
-		NotificationID:         "",
+		NotificationID:         notificationId,
 		NotificationType:       "CloudWatch CRON",
 		NotificationSource:     "AWS Lambda - Health Monitor",
 		NotificationTime:       notificationTime,
 		NotificationDate:       notificationDate,
 		NotificationTimezone:   notificationTimezone,
 		NotificationSubject:    "Health Monitor Notification (AWS Lambda)",
-		NotificationMessage:    strings.Join(messageLines, "\n"),
+		NotificationMessage:    strings.Join(messageLines, ""),
 		AccessSecret:           "",
 	}
 
@@ -87,6 +90,7 @@ func SendNotification(allSuccessful bool, unhealthyEndpoints []string) error {
 			return nil, fmt.Errorf("failed to create request: %w", err)
 		}
 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("X-API-Key", os.Getenv("NOTIFICATION_SERVER_API_KEY"))
 
 		client := &http.Client{Timeout: 5 * time.Second}
 		return client.Do(req)
@@ -101,9 +105,12 @@ func SendNotification(allSuccessful bool, unhealthyEndpoints []string) error {
 		time.Sleep(2 * time.Second) // wait before retrying
 
 		resp, err = sendNotification()
-		if err != nil || resp.StatusCode >= 400 {
-			fmt.Println("Second attempt to send notification failed:", err, "Status Code:", resp.StatusCode)
+		if err != nil {
+			fmt.Println("Second attempt to send notification failed with error:", err)
 			return fmt.Errorf("failed to send notification after retries: %w", err)
+		} else if resp.StatusCode >= 400 {
+			fmt.Println("Second attempt to send notification failed with status code:", resp.StatusCode)
+			return fmt.Errorf("failed to send notification after retries: status code %d", resp.StatusCode)
 		}
 	}
 
