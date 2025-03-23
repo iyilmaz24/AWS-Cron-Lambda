@@ -32,7 +32,7 @@ func CheckEndpointHealth(unhealthyEndpoints *[]string, endpoint string) {
 	if err != nil || resp.StatusCode >= 400 {
 		resp, err = http.Get(endpoint) // retry HTTP request
 		if err != nil || resp.StatusCode >= 400 {
-			*unhealthyEndpoints = append(*unhealthyEndpoints, endpoint) // if unsuccessful, add endpoint to array
+			*unhealthyEndpoints = append(*unhealthyEndpoints, endpoint) // if unsuccessful, add endpoint to slice
 		}
 	}
 }
