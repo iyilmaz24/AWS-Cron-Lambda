@@ -24,4 +24,4 @@ Resources:
           SERVERS_TO_MONITOR: "{{resolve:ssm:/backend/lambda/servers-to-monitor}}"
           NOTIFICATION_SERVER_ENDPOINT: "{{resolve:ssm:/backend/lambda/notification-server-endpoint}}"
           EMAIL_NOTIFICATION_RECIPIENTS: "{{resolve:ssm:/backend/internal/alert-emails}}"
-          NOTIFICATION_SERVER_API_KEY: "{{resolve:ssm:/backend/internal/notification-server-api-key}}"
+          BACKEND_API_KEY: "{{resolve:ssm:/backend/internal/api-key}}"
