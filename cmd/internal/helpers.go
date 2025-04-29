@@ -29,7 +29,7 @@ type Notification struct {
 
 func CheckEndpointHealth(client *http.Client, unhealthyEndpoints *[]string, endpoint string, apiKey string) {
 
-	req, err := http.NewRequest("GET", endpoint, nil)
+	req, err := http.NewRequest("GET", strings.TrimSpace(endpoint), nil)
 	if err != nil {
 		fmt.Printf("***ERROR: Failed to create request for endpoint '%s': %v\n", endpoint, err)
 		*unhealthyEndpoints = append(*unhealthyEndpoints, endpoint)

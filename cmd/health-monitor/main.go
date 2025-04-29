@@ -29,14 +29,19 @@ func handler(ctx context.Context) (string, error) {
 	}
 
 	for _, server := range serversList {
-		internal.CheckEndpointHealth(client, &unhealthyEndpoints, server, os.Getenv("NOTIFICATION_SERVER_API_KEY")) // backend servers require X-API-KEY header
+		internal.CheckEndpointHealth(client, &unhealthyEndpoints, server, os.Getenv("BACKEND_API_KEY")) // backend servers require X-API-KEY header
 	}
 
 	allSuccessful := len(unhealthyEndpoints) == 0
-	err := internal.SendNotification(client, allSuccessful, unhealthyEndpoints)
-	if err != nil {
-		fmt.Println("***ERROR: Error sending notification:", err)
-		return "", err // this allows AWS to recognize the Lambda invocation as a failure
+
+	if !allSuccessful { // optional control structure - only send notification if there is an issue
+		err := internal.SendNotification(client, allSuccessful, unhealthyEndpoints)
+		if err != nil {
+			fmt.Println("***ERROR: Error sending notification:", err)
+			return "", err // this allows AWS to recognize the Lambda invocation as a failure
+		}
+	} else {
+		fmt.Println("***INFO: All endpoints healthy - notification not sent")
 	}
 
 	return "Health check completed", nil
