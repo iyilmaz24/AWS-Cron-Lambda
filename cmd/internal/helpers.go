@@ -109,7 +109,7 @@ func GetNotificationObject(allSuccessful bool, unhealthyEndpoints []string) Noti
 func SendNotification(client *http.Client, allSuccessful bool, unhealthyEndpoints []string) error {
 
 	notificationServerEndpoint := os.Getenv("NOTIFICATION_SERVER_ENDPOINT")
-	backendApiKey := os.Getenv("NOTIFICATION_SERVER_API_KEY")
+	backendApiKey := os.Getenv("BACKEND_API_KEY")
 	if notificationServerEndpoint == "" || backendApiKey == "" {
 		return fmt.Errorf("Notification server endpoint and/or API key missing")
 	}
