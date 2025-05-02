@@ -22,7 +22,7 @@ func handler(ctx context.Context) (string, error) {
 	sitesList := strings.Split(sites, ",")
 	serversList := strings.Split(servers, ",")
 	unhealthyEndpoints := []string{}
-	client := &http.Client{Timeout: 7 * time.Second} // 7 second max timeout for requests
+	client := &http.Client{Timeout: 12 * time.Second} // 7 second max timeout for requests
 
 	for _, site := range sitesList {
 		internal.CheckEndpointHealth(client, &unhealthyEndpoints, site, "")
